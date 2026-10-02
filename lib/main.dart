@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'models/cart_model.dart';
 import 'screens/home_page.dart';
 import 'repositories/item_repository_api.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: '.env');
   runApp(
     ChangeNotifierProvider(
       create: (context) => CartModel(),

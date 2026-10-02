@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/item.dart';
 import '../models/cart_model.dart';
 import '../repositories/item_repository.dart';
+import '../services/gemini_service.dart';
 import 'checkout_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,12 +23,54 @@ class _HomePageState extends State<HomePage> {
     _itemsFuture = widget.repository.getItems();
   }
 
+  bool _geminiLoading = false;
+
+  Future<void> _testGemini() async {
+    if (_geminiLoading) return;
+    _geminiLoading = true;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('กำลังถาม Gemini...'),
+          duration: Duration(seconds: 30),
+        ),
+      );
+    String message;
+    try {
+      message = await GeminiService().generateText(
+        'ช่วยร่างคำทักทายลูกค้าที่เป็นมิตรสำหรับร้านค้าออนไลน์ ความยาวไม่เกิน 2 ประโยค',
+      );
+      print('Gemini: $message');
+    } catch (e) {
+      message = '$e';
+      print('Gemini error: $e');
+    } finally {
+      _geminiLoading = false;
+    }
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message.trim(), maxLines: 6),
+          duration: const Duration(seconds: 15),
+          showCloseIcon: true,
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Campus Marketplace'),
         actions: [
+          // ปุ่มทดสอบชั่วคราว (ข้อ 2.3) ลบทิ้งหลังทดสอบเสร็จ
+          IconButton(
+            icon: const Icon(Icons.auto_awesome),
+            onPressed: _testGemini,
+          ),
           IconButton(
             icon: Badge(
               label: Text('${context.watch<CartModel>().itemCount}'),
