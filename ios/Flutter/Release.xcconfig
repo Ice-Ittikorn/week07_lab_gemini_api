@@ -1,0 +1,4 @@
+#include "Generated.xcconfig"
+
+ARCHS[sdk=iphonesimulator*] = arm64
+VALID_ARCHS[sdk=iphonesimulator*] = arm64
